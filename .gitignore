@@ -1,0 +1,14 @@
+# Unreal
+UnrealMCP/Binaries/
+UnrealMCP/Intermediate/
+UnrealMCP/Config/FilterPlugin.ini
+
+# Python
+.venv/
+__pycache__/
+*.egg-info/
+UnrealMCP/Python/logs/
+*.log
+
+# Releases generados por Herramientas/empaquetar-release.ps1
+dist/

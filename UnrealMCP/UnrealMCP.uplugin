@@ -1,0 +1,43 @@
+{
+	"FileVersion": 3,
+	"Version": 2,
+	"VersionName": "2.0",
+	"FriendlyName": "Unreal MCP Max",
+	"Description": "Conecta Unreal Engine con IAs (Claude, Cursor...) mediante Model Context Protocol. Basado en unreal-mcp de chongdashu (MIT).",
+	"Category": "Editor",
+	"CreatedBy": "MaxP7588 / SamaraLab",
+	"CreatedByURL": "https://github.com/MaxP7588",
+	"DocsURL": "https://github.com/MaxP7588/unreal-mcp-max",
+	"MarketplaceURL": "",
+	"SupportURL": "https://github.com/MaxP7588/unreal-mcp-max/issues",
+	"CanContainContent": true,
+	"IsBetaVersion": false,
+	"IsExperimentalVersion": false,
+	"Installed": false,
+	"Modules": [
+		{
+			"Name": "UnrealMCP",
+			"Type": "Editor",
+			"LoadingPhase": "Default",
+			"WhitelistPlatforms": [
+				"Win64",
+				"Mac",
+				"Linux"
+			]
+		}
+	],
+	"Plugins": [
+		{
+			"Name": "EditorScriptingUtilities",
+			"Enabled": true
+		},
+		{
+			"Name": "EnhancedInput",
+			"Enabled": true
+		},
+		{
+			"Name": "PythonScriptPlugin",
+			"Enabled": true
+		}
+	]
+}
