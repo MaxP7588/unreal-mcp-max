@@ -194,3 +194,6 @@ proyecto original. Puedes usarlo, modificarlo y redistribuirlo libremente, tambi
 proyectos comerciales, siempre que mantengas el aviso de licencia.
 
 *Unreal Engine es una marca de Epic Games. Este proyecto no está afiliado a Epic Games ni a Anthropic.*
+
+[![M8ven Score](https://m8ven.ai/badge/mcp/maxp7588-unreal-mcp-max-j8brc8?v=c5f15ed0fd03a6e5a8e79f9abd0153b1)](https://m8ven.ai/mcp/maxp7588-unreal-mcp-max-j8brc8?s=readme)
+
