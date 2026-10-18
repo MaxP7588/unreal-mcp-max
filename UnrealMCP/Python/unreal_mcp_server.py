@@ -39,7 +39,7 @@ RESPONSE_TIMEOUT = float(os.environ.get("UNREAL_MCP_TIMEOUT", "75"))
 
 # Modo simple (estudiantes): sin herramientas que ejecutan código arbitrario o que no se deshacen con Ctrl+Z.
 SIMPLE_MODE = os.environ.get("UNREAL_MCP_MODE", "completo").strip().lower() in ("simple", "estudiante", "student")
-SIMPLE_MODE_BLOCKED_TOOLS = {"execute_python", "console_command", "delete_asset"}
+SIMPLE_MODE_BLOCKED_TOOLS = {"execute_python", "console_command", "delete_asset", "close_editor", "restart_editor"}
 
 
 def _preview(text: str, limit: int = 1500) -> str:
@@ -191,6 +191,7 @@ if SIMPLE_MODE:
     logger.info("Modo simple: desactivadas %s", ", ".join(sorted(SIMPLE_MODE_BLOCKED_TOOLS)))
 
 from tools.editor_tools import register_editor_tools
+from tools.editor_process_tools import register_editor_process_tools
 from tools.level_tools import register_level_tools
 from tools.script_tools import register_script_tools
 from tools.material_tools import register_material_tools
@@ -204,6 +205,7 @@ from tools.asset_tools import register_asset_tools
 from tools.graph_edit_tools import register_graph_edit_tools
 
 register_editor_tools(mcp)
+register_editor_process_tools(mcp)
 register_level_tools(mcp)
 register_script_tools(mcp)
 register_material_tools(mcp)
@@ -222,8 +224,8 @@ def info():
     """Guía de uso de las herramientas de Unreal MCP."""
     if SIMPLE_MODE:
         escape = (
-            "- Modo simple: no hay execute_python, console_command ni delete_asset. Si algo no se puede\n"
-            "  hacer con las herramientas, explícale al usuario los pasos para hacerlo a mano en el editor.\n"
+            "- Modo simple: no hay execute_python, console_command, delete_asset, close_editor ni restart_editor.\n"
+            "  Si algo no se puede hacer con las herramientas, explícale al usuario los pasos para hacerlo a mano en el editor.\n"
             "- El usuario no programa: explica en palabras simples qué cambiaste y cómo probarlo (Play)."
         )
     else:
@@ -239,7 +241,7 @@ def info():
   `save_assets` (assets) o `save_level` (nivel) solo cuando el usuario lo pida.
 - Los actores se buscan por etiqueta (el nombre del Outliner) o por nombre interno.
 - Los assets aceptan nombre corto (si es único) o ruta completa /Game/...
-- Si una herramienta falla al conectar, pide al usuario que abra el editor. No uses capturas
+- Si una herramienta falla al conectar, abre el editor con open_editor. No uses capturas
   para entender lógica de Blueprints: usa read_blueprint_graph.
 {escape}
 
@@ -258,6 +260,7 @@ def info():
   set_actor_transform, set_actor_label, set_actor_folder, set_actor_tags, attach_actor
 - get_actor_components, set_selection, focus_actor, get/set_viewport_camera, take_screenshot
 - open_level, save_level, list_levels, start_pie (viewport | vr | simulate | window), stop_pie
+- open_editor abre el editor (y espera a que responda); close_editor y restart_editor solo en modo completo
 
 ## Assets y materiales
 - search_assets, get_asset_info, create_asset, duplicate_asset, rename_asset, delete_asset,

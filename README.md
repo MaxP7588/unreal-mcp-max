@@ -20,10 +20,11 @@ ellos se encargan del diseño.
 | Para quién | Gente que no programa | Gente que sabe lo que hace |
 | Compilar C++ / Visual Studio | **No hace falta**: el plugin viene compilado | Sí: Unreal compila el plugin con tu proyecto |
 | Versión de Unreal | Solo la del zip que descargas (p. ej. 5.5) | Cualquiera compatible con el código |
-| Herramientas | Todas menos las riesgosas | Todas (94) |
+| Herramientas | Todas menos las riesgosas | Todas (97) |
 | `execute_python` (ejecutar Python en el editor) | Desactivada | Activada |
 | `console_command` (comandos de consola) | Desactivada | Activada |
 | `delete_asset` (borrar archivos del proyecto, no se deshace) | Desactivada | Activada |
+| `close_editor`, `restart_editor` (cerrar el editor; pueden descartar cambios sin guardar) | Desactivada | Activada |
 
 En los dos modos, los cambios en el editor quedan **sin guardar** y se pueden deshacer con **Ctrl+Z**
 hasta que guardes.
@@ -115,7 +116,7 @@ Si la IA hace algo raro, usa **Ctrl+Z** en Unreal o simplemente no guardes.
 
 | Variable | Por defecto | Uso |
 |---|---|---|
-| `UNREAL_MCP_MODE` | `completo` | `simple` desactiva `execute_python`, `console_command` y `delete_asset` |
+| `UNREAL_MCP_MODE` | `completo` | `simple` desactiva `execute_python`, `console_command`, `delete_asset`, `close_editor` y `restart_editor` |
 | `UNREAL_MCP_HOST` | `127.0.0.1` | Host del editor |
 | `UNREAL_MCP_PORT` | `55557` | Puerto TCP del plugin (también en *Project Settings → Plugins → Unreal MCP*) |
 | `UNREAL_MCP_TIMEOUT` | `75` | Segundos de espera por respuesta |
@@ -145,6 +146,7 @@ Si la IA hace algo raro, usa **Ctrl+Z** en Unreal o simplemente no guardes.
 | Blueprints (edición) | `create_blueprint`, `apply_blueprint_graph`, `add_blueprint_node`, `connect_blueprint_pins`, `compile_blueprint` |
 | Input | Enhanced Input: `add_enhanced_input_mapping`, `read_input_asset` |
 | UI (UMG) | `create_umg_widget_blueprint`, `add_widget`, `set_widget_property`, `bind_widget_event` |
+| Editor | `open_editor`; solo modo completo: `close_editor`, `restart_editor` |
 | Script (solo modo completo) | `execute_python`, `console_command` |
 
 `list_commands` devuelve la lista completa desde el editor. El prompt `info` del servidor explica a la

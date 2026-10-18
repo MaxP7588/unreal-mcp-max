@@ -71,15 +71,16 @@ def register_graph_edit_tools(mcp: FastMCP):
         action: str = "",
         macro: str = "",
         dispatcher: str = "",
+        text: str = "",
         defaults: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
-        """Add one node. type is call_function, variable_get, variable_set, branch, sequence, cast, self, event, custom_event, call_dispatcher, bind_dispatcher, enhanced_input_action, macro, component_get, or knot."""
+        """Add one node. type is call_function, variable_get, variable_set, branch, sequence, cast, self, event, custom_event, call_dispatcher, bind_dispatcher, enhanced_input_action, macro, component_get, knot, or text (paste one node copied with Ctrl+C or export_blueprint_nodes_text; works for any node class, including AnimGraph nodes)."""
         payload: Dict[str, Any] = {"blueprint_path": blueprint_path, "type": type, "x": x, "y": y}
         if graph_name:
             payload["graph_name"] = graph_name
         for key, value in {
             "function": function, "target": target, "variable": variable, "class": class_name,
-            "name": name, "action": action, "macro": macro, "dispatcher": dispatcher,
+            "name": name, "action": action, "macro": macro, "dispatcher": dispatcher, "text": text,
         }.items():
             if value:
                 payload[key] = value
@@ -130,6 +131,9 @@ def register_graph_edit_tools(mcp: FastMCP):
         compile: bool = True,
     ) -> Dict[str, Any]:
         """Create nodes and wires in one undoable call. Each node has a ref. Links use from/to like ref.pin.
+
+        Node types are the same as add_blueprint_node. Use type=text with a "text" field to paste one node
+        exported as text; this is how to add nodes that have no dedicated type, such as AnimGraph nodes.
 
         On failure the whole edit is cancelled. On success the result includes compiler messages and pseudocode.
         """

@@ -582,11 +582,20 @@ UK2Node_Event* FUnrealMCPCommonUtils::CreateEventNode(UEdGraph* Graph, const FSt
     
     if (EventFunction)
     {
+        // Igual que el menú del editor: el evento apunta a la clase que declara la función y la sobrescribe.
+        // Sin bOverrideFunction el nodo se ve bien pero el evento nunca se llama.
+        UFunction* RootFunction = EventFunction;
+        while (UFunction* Super = RootFunction->GetSuperFunction())
+        {
+            RootFunction = Super;
+        }
         EventNode = NewObject<UK2Node_Event>(Graph);
-        EventNode->EventReference.SetExternalMember(FName(*EventName), BlueprintClass);
+        EventNode->EventReference.SetExternalMember(FName(*EventName), RootFunction->GetOwnerClass());
+        EventNode->bOverrideFunction = true;
         EventNode->NodePosX = Position.X;
         EventNode->NodePosY = Position.Y;
         Graph->AddNode(EventNode, true);
+        EventNode->CreateNewGuid();
         EventNode->PostPlacedNewNode();
         EventNode->AllocateDefaultPins();
         UE_LOG(LogTemp, Display, TEXT("Created new event node with name %s (ID: %s)"), 

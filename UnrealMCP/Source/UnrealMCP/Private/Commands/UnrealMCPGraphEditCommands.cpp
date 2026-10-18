@@ -4,6 +4,7 @@
 #include "Commands/UnrealMCPGraphSerializer.h"
 
 #include "EdGraph/EdGraph.h"
+#include "EdGraphUtilities.h"
 #include "EdGraphSchema_K2.h"
 #include "Engine/Blueprint.h"
 #include "K2Node_AddDelegate.h"
@@ -141,6 +142,18 @@ namespace
         return FUnrealMCPCommonUtils::FindPin(Node, PinName, EGPD_Input);
     }
 
+    // El extremo de llegada de un cable: primero entradas. FindPin, si no halla una salida con ese
+    // nombre en un nodo Get, devuelve su primera salida de datos, así que "nodo.self" no puede
+    // buscarse como salida primero.
+    UEdGraphPin* FindTargetPin(UEdGraphNode* Node, const FString& PinName)
+    {
+        if (UEdGraphPin* Pin = FUnrealMCPCommonUtils::FindPin(Node, PinName, EGPD_Input))
+        {
+            return Pin;
+        }
+        return FUnrealMCPCommonUtils::FindPin(Node, PinName, EGPD_Output);
+    }
+
     void ApplyDefaults(UEdGraph* Graph, UEdGraphNode* Node, const TSharedPtr<FJsonObject>& Spec)
     {
         const TSharedPtr<FJsonObject>* Defaults = nullptr;
@@ -150,7 +163,7 @@ namespace
         }
         for (const TPair<FString, TSharedPtr<FJsonValue>>& Pair : (*Defaults)->Values)
         {
-            UEdGraphPin* Pin = FindPinEither(Node, Pair.Key);
+            UEdGraphPin* Pin = FindTargetPin(Node, Pair.Key);
             if (!Pin)
             {
                 continue;
@@ -416,6 +429,41 @@ UEdGraphNode* FUnrealMCPGraphEditCommands::CreateNode(UBlueprint* Blueprint, UEd
     {
         return Place(NewObject<UK2Node_Knot>(Graph));
     }
+    if (Type == TEXT("text"))
+    {
+        // Pega un nodo copiado con Ctrl+C (o export_blueprint_nodes_text). Sirve para cualquier
+        // clase de nodo, incluidos los de AnimGraph, sin que haya que crear un tipo para cada una.
+        const FString Text = ReadString(Spec, TEXT("text"));
+        if (Text.IsEmpty() || !FEdGraphUtilities::CanImportNodesFromText(Graph, Text))
+        {
+            OutError = TEXT("text necesita el texto de un nodo que se pueda pegar en este grafo");
+            return nullptr;
+        }
+        TSet<UEdGraphNode*> Imported;
+        FEdGraphUtilities::ImportNodesFromText(Graph, Text, Imported);
+        if (Imported.Num() != 1)
+        {
+            for (UEdGraphNode* Extra : Imported)
+            {
+                Graph->RemoveNode(Extra);
+            }
+            OutError = FString::Printf(TEXT("text debe traer exactamente un nodo (trajo %d)"), Imported.Num());
+            return nullptr;
+        }
+        UEdGraphNode* Node = *Imported.CreateIterator();
+        Node->SetFlags(RF_Transactional);
+        Node->NodePosX = X;
+        Node->NodePosY = Y;
+        Node->CreateNewGuid();
+        Node->PostPasteNode();
+        if (Node->Pins.Num() == 0)
+        {
+            // El texto puede venir sin líneas CustomProperties Pin; los nodos K2 no las recrean solos.
+            Node->AllocateDefaultPins();
+        }
+        ApplyDefaults(Graph, Node, Spec);
+        return Node;
+    }
 
     OutError = FString::Printf(TEXT("Tipo de nodo desconocido: %s"), *Type);
     return nullptr;
@@ -678,7 +726,7 @@ TSharedPtr<FJsonObject> FUnrealMCPGraphEditCommands::HandleConnectPins(const TSh
     UEdGraphNode* Source = FindNode(Graph, Empty, FromNode);
     UEdGraphNode* Target = FindNode(Graph, Empty, ToNode);
     UEdGraphPin* SourcePin = Source ? FindPinEither(Source, FromPin) : nullptr;
-    UEdGraphPin* TargetPin = Target ? FindPinEither(Target, ToPin) : nullptr;
+    UEdGraphPin* TargetPin = Target ? FindTargetPin(Target, ToPin) : nullptr;
     if (!SourcePin || !TargetPin)
     {
         return FUnrealMCPCommonUtils::CreateErrorResponse(TEXT("No se encontró un nodo o un pin"));
@@ -770,7 +818,7 @@ TSharedPtr<FJsonObject> FUnrealMCPGraphEditCommands::HandleSetPinDefault(const T
     }
     TMap<FString, UEdGraphNode*> Empty;
     UEdGraphNode* Node = FindNode(Graph, Empty, NodeText);
-    UEdGraphPin* Pin = Node ? FindPinEither(Node, PinText) : nullptr;
+    UEdGraphPin* Pin = Node ? FindTargetPin(Node, PinText) : nullptr;
     if (!Pin)
     {
         return FUnrealMCPCommonUtils::CreateErrorResponse(TEXT("No se encontró el pin"));
@@ -853,6 +901,7 @@ TSharedPtr<FJsonObject> FUnrealMCPGraphEditCommands::HandleApplyGraph(const TSha
     Params->TryGetArrayField(TEXT("links"), LinkValues);
 
     TMap<FString, UEdGraphNode*> Refs;
+    TArray<UEdGraphNode*> Created;
     TArray<FString> Errors;
     if (NodeValues)
     {
@@ -867,6 +916,7 @@ TSharedPtr<FJsonObject> FUnrealMCPGraphEditCommands::HandleApplyGraph(const TSha
                 Errors.Add(Ref.IsEmpty() ? CreateError : Ref + TEXT(": ") + CreateError);
                 continue;
             }
+            Created.Add(Node);
             if (!Ref.IsEmpty())
             {
                 Refs.Add(Ref, Node);
@@ -890,7 +940,7 @@ TSharedPtr<FJsonObject> FUnrealMCPGraphEditCommands::HandleApplyGraph(const TSha
             UEdGraphNode* Source = FindNode(Graph, Refs, FromNode);
             UEdGraphNode* Target = FindNode(Graph, Refs, ToNode);
             UEdGraphPin* SourcePin = Source ? FindPinEither(Source, FromPin) : nullptr;
-            UEdGraphPin* TargetPin = Target ? FindPinEither(Target, ToPin) : nullptr;
+            UEdGraphPin* TargetPin = Target ? FindTargetPin(Target, ToPin) : nullptr;
             if (!SourcePin || !TargetPin)
             {
                 Errors.Add(FString::Printf(TEXT("No se encontró %s o %s"), *ReadString(Link, TEXT("from")), *ReadString(Link, TEXT("to"))));
@@ -907,6 +957,12 @@ TSharedPtr<FJsonObject> FUnrealMCPGraphEditCommands::HandleApplyGraph(const TSha
     }
     if (Errors.Num() > 0)
     {
+        // Cancelar la transacción no deshace lo ya hecho: hay que sacar a mano los nodos nuevos.
+        // RemoveNode también corta los cables que se alcanzaron a crear hacia nodos existentes.
+        for (UEdGraphNode* Node : Created)
+        {
+            FBlueprintEditorUtils::RemoveNode(Blueprint, Node, true);
+        }
         Transaction.Cancel();
         TSharedPtr<FJsonObject> Data = MakeShared<FJsonObject>();
         TArray<TSharedPtr<FJsonValue>> ErrorValues;
