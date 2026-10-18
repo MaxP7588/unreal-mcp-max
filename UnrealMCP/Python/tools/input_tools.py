@@ -5,6 +5,8 @@ from typing import Any, Dict, List, Optional
 
 from mcp.server.fastmcp import Context, FastMCP
 
+from tools.common import CREATE, DESTRUCTIVE, READ_ONLY
+
 logger = logging.getLogger("UnrealMCP")
 
 
@@ -39,7 +41,7 @@ def _command(command: str, params: Dict[str, Any]) -> Dict[str, Any]:
 
 
 def register_input_tools(mcp: FastMCP):
-    @mcp.tool()
+    @mcp.tool(annotations=READ_ONLY)
     def read_input_asset(ctx: Context, asset_path: str) -> Dict[str, Any]:
         """Read an Enhanced Input Action or Mapping Context.
 
@@ -48,12 +50,12 @@ def register_input_tools(mcp: FastMCP):
         """
         return _command("read_input_asset", {"asset_path": asset_path})
 
-    @mcp.tool()
+    @mcp.tool(annotations=READ_ONLY)
     def find_input_bindings(ctx: Context, query: str, path: str = "/Game") -> Dict[str, Any]:
         """Find Enhanced Input actions or keys by name. Example: IA_Inspeccionar or Trigger."""
         return _command("find_input_bindings", {"query": query, "path": path})
 
-    @mcp.tool()
+    @mcp.tool(annotations=CREATE)
     def add_enhanced_input_mapping(
         ctx: Context,
         context_path: str,
@@ -81,7 +83,7 @@ def register_input_tools(mcp: FastMCP):
             params["modifiers"] = modifiers
         return _command("add_enhanced_input_mapping", params)
 
-    @mcp.tool()
+    @mcp.tool(annotations=DESTRUCTIVE)
     def remove_enhanced_input_mapping(ctx: Context, context_path: str, action: str, key: str) -> Dict[str, Any]:
         """Remove one key mapping from an Enhanced Input Mapping Context."""
         return _command("remove_enhanced_input_mapping", {"context_path": context_path, "action": action, "key": key})

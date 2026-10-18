@@ -10,6 +10,7 @@ from typing import Any, Dict, List, Optional
 from mcp.server.fastmcp import Context, FastMCP
 
 from tools.bp_pseudocode import render_dump
+from tools.common import READ_ONLY
 
 logger = logging.getLogger("UnrealMCP")
 
@@ -54,7 +55,7 @@ def _command(command: str, params: Dict[str, Any]) -> Dict[str, Any]:
 def register_blueprint_read_tools(mcp: FastMCP):
     """Register read-only Blueprint tools."""
 
-    @mcp.tool()
+    @mcp.tool(annotations=READ_ONLY)
     def list_blueprints(
         ctx: Context,
         path: str = "/Game",
@@ -76,7 +77,7 @@ def register_blueprint_read_tools(mcp: FastMCP):
             params["kind"] = kind
         return _command("list_blueprints", params)
 
-    @mcp.tool()
+    @mcp.tool(annotations=READ_ONLY)
     def get_blueprint_overview(ctx: Context, blueprint_path: str) -> Dict[str, Any]:
         """Use this instead of screenshots to read Blueprint logic.
 
@@ -89,7 +90,7 @@ def register_blueprint_read_tools(mcp: FastMCP):
         """
         return _command("get_blueprint_overview", {"blueprint_path": blueprint_path})
 
-    @mcp.tool()
+    @mcp.tool(annotations=READ_ONLY)
     def read_blueprint_graph(
         ctx: Context,
         blueprint_path: str,
@@ -139,7 +140,7 @@ def register_blueprint_read_tools(mcp: FastMCP):
             "text": "\n".join(render_dump(payload)),
         }
 
-    @mcp.tool()
+    @mcp.tool(annotations=READ_ONLY)
     def find_in_blueprints(
         ctx: Context,
         query: str,
@@ -165,7 +166,7 @@ def register_blueprint_read_tools(mcp: FastMCP):
             "max_results": max_results,
         })
 
-    @mcp.tool()
+    @mcp.tool(annotations=READ_ONLY)
     def export_blueprint_nodes_text(
         ctx: Context,
         blueprint_path: str,
@@ -190,7 +191,7 @@ def register_blueprint_read_tools(mcp: FastMCP):
             params["node_ids"] = node_ids
         return _command("export_blueprint_nodes_text", params)
 
-    @mcp.tool()
+    @mcp.tool(annotations=READ_ONLY)
     def read_data_asset(
         ctx: Context,
         asset_path: str,

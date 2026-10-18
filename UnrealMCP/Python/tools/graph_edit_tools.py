@@ -6,13 +6,14 @@ from typing import Any, Dict, List, Optional
 from mcp.server.fastmcp import Context, FastMCP
 
 from tools.bp_pseudocode import render_dump
+from tools.common import CREATE, DESTRUCTIVE, EDIT, READ_ONLY
 from tools.input_tools import _command
 
 logger = logging.getLogger("UnrealMCP")
 
 
 def register_graph_edit_tools(mcp: FastMCP):
-    @mcp.tool()
+    @mcp.tool(annotations=CREATE)
     def add_blueprint_function(
         ctx: Context,
         blueprint_path: str,
@@ -30,7 +31,7 @@ def register_graph_edit_tools(mcp: FastMCP):
             "pure": pure,
         })
 
-    @mcp.tool()
+    @mcp.tool(annotations=CREATE)
     def add_event_dispatcher(
         ctx: Context,
         blueprint_path: str,
@@ -40,7 +41,7 @@ def register_graph_edit_tools(mcp: FastMCP):
         """Add an event dispatcher and its signature parameters."""
         return _command("add_event_dispatcher", {"blueprint_path": blueprint_path, "name": name, "params": params or []})
 
-    @mcp.tool()
+    @mcp.tool(annotations=CREATE)
     def add_custom_event(
         ctx: Context,
         blueprint_path: str,
@@ -54,7 +55,7 @@ def register_graph_edit_tools(mcp: FastMCP):
             payload["graph_name"] = graph_name
         return _command("add_custom_event", payload)
 
-    @mcp.tool()
+    @mcp.tool(annotations=CREATE)
     def add_blueprint_node(
         ctx: Context,
         blueprint_path: str,
@@ -86,7 +87,7 @@ def register_graph_edit_tools(mcp: FastMCP):
             payload["defaults"] = defaults
         return _command("add_blueprint_node", payload)
 
-    @mcp.tool()
+    @mcp.tool(annotations=EDIT)
     def connect_blueprint_pins(ctx: Context, blueprint_path: str, from_pin: str, to_pin: str, graph_name: str = "") -> Dict[str, Any]:
         """Connect two pins. Endpoints look like NodeGuid.PinName. graph_name defaults to the Event Graph."""
         payload: Dict[str, Any] = {"blueprint_path": blueprint_path, "from": from_pin, "to": to_pin}
@@ -94,7 +95,7 @@ def register_graph_edit_tools(mcp: FastMCP):
             payload["graph_name"] = graph_name
         return _command("connect_blueprint_pins", payload)
 
-    @mcp.tool()
+    @mcp.tool(annotations=DESTRUCTIVE)
     def disconnect_blueprint_pins(ctx: Context, blueprint_path: str, from_pin: str, graph_name: str = "") -> Dict[str, Any]:
         """Break every link on one pin. from_pin looks like NodeGuid.PinName."""
         payload: Dict[str, Any] = {"blueprint_path": blueprint_path, "from": from_pin}
@@ -102,7 +103,7 @@ def register_graph_edit_tools(mcp: FastMCP):
             payload["graph_name"] = graph_name
         return _command("disconnect_blueprint_pins", payload)
 
-    @mcp.tool()
+    @mcp.tool(annotations=EDIT)
     def set_pin_default(ctx: Context, blueprint_path: str, pin: str, value: str, graph_name: str = "") -> Dict[str, Any]:
         """Set a literal default on a pin. pin looks like NodeGuid.PinName."""
         payload: Dict[str, Any] = {"blueprint_path": blueprint_path, "pin": pin, "value": value}
@@ -110,7 +111,7 @@ def register_graph_edit_tools(mcp: FastMCP):
             payload["graph_name"] = graph_name
         return _command("set_pin_default", payload)
 
-    @mcp.tool()
+    @mcp.tool(annotations=DESTRUCTIVE)
     def delete_blueprint_node(ctx: Context, blueprint_path: str, node_id: str, graph_name: str = "") -> Dict[str, Any]:
         """Delete one node from a graph."""
         payload: Dict[str, Any] = {"blueprint_path": blueprint_path, "node_id": node_id}
@@ -118,7 +119,7 @@ def register_graph_edit_tools(mcp: FastMCP):
             payload["graph_name"] = graph_name
         return _command("delete_blueprint_node", payload)
 
-    @mcp.tool()
+    @mcp.tool(annotations=CREATE)
     def apply_blueprint_graph(
         ctx: Context,
         blueprint_path: str,
@@ -144,7 +145,7 @@ def register_graph_edit_tools(mcp: FastMCP):
             payload["text"] = "\n".join(render_dump(payload))
         return payload
 
-    @mcp.tool()
+    @mcp.tool(annotations=READ_ONLY)
     def search_callable_functions(
         ctx: Context,
         query: str = "",

@@ -4,13 +4,13 @@ from typing import Any, Dict, List, Optional
 
 from mcp.server.fastmcp import Context, FastMCP
 
-from tools.common import command
+from tools.common import CREATE, DESTRUCTIVE, EDIT, READ_ONLY, command
 
 
 def register_level_tools(mcp: FastMCP):
     # --- Propiedades genéricas -------------------------------------------------
 
-    @mcp.tool()
+    @mcp.tool(annotations=READ_ONLY)
     def get_object_properties(
         ctx: Context,
         actor: Optional[str] = None,
@@ -37,7 +37,7 @@ def register_level_tools(mcp: FastMCP):
             "filter": filter, "include_all": include_all, "pie": pie,
         })
 
-    @mcp.tool()
+    @mcp.tool(annotations=EDIT)
     def set_object_property(
         ctx: Context,
         actor: Optional[str] = None,
@@ -66,95 +66,95 @@ def register_level_tools(mcp: FastMCP):
 
     # --- Actores ---------------------------------------------------------------
 
-    @mcp.tool()
+    @mcp.tool(annotations=READ_ONLY)
     def get_actor_components(ctx: Context, actor: str, pie: bool = False) -> Dict[str, Any]:
         """Lista los componentes de un actor con clase, jerarquía y transform relativo."""
         return command("get_actor_components", {"actor": actor, "pie": pie})
 
-    @mcp.tool()
+    @mcp.tool(annotations=READ_ONLY)
     def get_selected_actors(ctx: Context) -> Dict[str, Any]:
         """Devuelve los actores seleccionados en el editor."""
         return command("get_selected_actors")
 
-    @mcp.tool()
+    @mcp.tool(annotations=EDIT)
     def set_selection(ctx: Context, actors: List[str], add: bool = False) -> Dict[str, Any]:
         """Selecciona actores en el editor. Con add=False reemplaza la selección; una lista vacía la limpia."""
         return command("set_selection", {"actors": actors, "add": add})
 
-    @mcp.tool()
+    @mcp.tool(annotations=EDIT)
     def set_actor_label(ctx: Context, actor: str, label: str) -> Dict[str, Any]:
         """Cambia la etiqueta (nombre visible en el Outliner) de un actor."""
         return command("set_actor_label", {"actor": actor, "label": label})
 
-    @mcp.tool()
+    @mcp.tool(annotations=EDIT)
     def set_actor_folder(ctx: Context, actors: List[str], folder: str = "") -> Dict[str, Any]:
         """Mueve actores a una carpeta del Outliner (p. ej. "Iluminacion/Interior"). Vacío = raíz."""
         return command("set_actor_folder", {"actors": actors, "folder": folder})
 
-    @mcp.tool()
+    @mcp.tool(annotations=EDIT)
     def set_actor_tags(ctx: Context, actors: List[str], tags: List[str], mode: str = "set") -> Dict[str, Any]:
         """Cambia los tags de actores. mode: "set" (reemplaza), "add" o "remove"."""
         return command("set_actor_tags", {"actors": actors, "tags": tags, "mode": mode})
 
-    @mcp.tool()
+    @mcp.tool(annotations=CREATE)
     def duplicate_actor(
         ctx: Context, actor: str, new_label: Optional[str] = None, offset: Optional[List[float]] = None
     ) -> Dict[str, Any]:
         """Duplica un actor del nivel, opcionalmente desplazado [x, y, z] y con otra etiqueta."""
         return command("duplicate_actor", {"actor": actor, "new_label": new_label, "offset": offset})
 
-    @mcp.tool()
+    @mcp.tool(annotations=EDIT)
     def attach_actor(ctx: Context, actor: str, parent: str = "", socket: str = "") -> Dict[str, Any]:
         """Adjunta un actor a otro (parent vacío lo separa), conservando el transform en el mundo."""
         return command("attach_actor", {"actor": actor, "parent": parent, "socket": socket})
 
     # --- Niveles ---------------------------------------------------------------
 
-    @mcp.tool()
+    @mcp.tool(annotations=READ_ONLY)
     def get_level_info(ctx: Context) -> Dict[str, Any]:
         """Información del nivel abierto: nombre, paquete, cambios sin guardar, sublevels, GameMode."""
         return command("get_level_info")
 
-    @mcp.tool()
+    @mcp.tool(annotations=READ_ONLY)
     def list_levels(ctx: Context, path: str = "/Game") -> Dict[str, Any]:
         """Lista los niveles (.umap) bajo una carpeta."""
         return command("list_levels", {"path": path})
 
-    @mcp.tool()
+    @mcp.tool(annotations=DESTRUCTIVE)
     def open_level(ctx: Context, path: str, discard_changes: bool = False) -> Dict[str, Any]:
         """Abre un nivel. Falla si el actual tiene cambios sin guardar, salvo discard_changes=True."""
         return command("open_level", {"path": path, "discard_changes": discard_changes})
 
-    @mcp.tool()
+    @mcp.tool(annotations=DESTRUCTIVE)
     def save_level(ctx: Context, all_dirty: bool = False) -> Dict[str, Any]:
         """Guarda el nivel actual. Con all_dirty=True guarda también todos los assets modificados."""
         return command("save_level", {"all_dirty": all_dirty})
 
     # --- PIE -------------------------------------------------------------------
 
-    @mcp.tool()
+    @mcp.tool(annotations=EDIT)
     def start_pie(ctx: Context, mode: str = "viewport") -> Dict[str, Any]:
         """Inicia Play In Editor. mode: "viewport", "window", "vr" (VR Preview) o "simulate"."""
         return command("start_pie", {"mode": mode})
 
-    @mcp.tool()
+    @mcp.tool(annotations=EDIT)
     def stop_pie(ctx: Context) -> Dict[str, Any]:
         """Detiene Play In Editor."""
         return command("stop_pie")
 
-    @mcp.tool()
+    @mcp.tool(annotations=READ_ONLY)
     def is_pie_running(ctx: Context) -> Dict[str, Any]:
         """Indica si PIE está corriendo."""
         return command("is_pie_running")
 
     # --- Viewport --------------------------------------------------------------
 
-    @mcp.tool()
+    @mcp.tool(annotations=READ_ONLY)
     def get_viewport_camera(ctx: Context) -> Dict[str, Any]:
         """Posición, rotación y FOV de la cámara del viewport del editor."""
         return command("get_viewport_camera")
 
-    @mcp.tool()
+    @mcp.tool(annotations=EDIT)
     def set_viewport_camera(
         ctx: Context,
         location: Optional[List[float]] = None,
@@ -164,7 +164,7 @@ def register_level_tools(mcp: FastMCP):
         """Mueve la cámara del viewport. rotation es [pitch, yaw, roll]."""
         return command("set_viewport_camera", {"location": location, "rotation": rotation, "fov": fov})
 
-    @mcp.tool()
+    @mcp.tool(annotations=EDIT)
     def focus_actor(ctx: Context, actors: List[str], select: bool = True) -> Dict[str, Any]:
         """Encuadra uno o varios actores en el viewport (como la tecla F) y opcionalmente los selecciona."""
         return command("focus_actor", {"actors": actors, "select": select})

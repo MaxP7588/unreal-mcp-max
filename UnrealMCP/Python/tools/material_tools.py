@@ -4,11 +4,11 @@ from typing import Any, Dict, Optional
 
 from mcp.server.fastmcp import Context, FastMCP
 
-from tools.common import command
+from tools.common import CREATE, EDIT, READ_ONLY, command
 
 
 def register_material_tools(mcp: FastMCP):
-    @mcp.tool()
+    @mcp.tool(annotations=CREATE)
     def create_material_instance(
         ctx: Context,
         name: str,
@@ -26,7 +26,7 @@ def register_material_tools(mcp: FastMCP):
         """
         return command("create_material_instance", {"name": name, "parent": parent, "folder": folder, "params": params})
 
-    @mcp.tool()
+    @mcp.tool(annotations=EDIT)
     def set_material_instance_param(
         ctx: Context,
         asset_path: str,
@@ -44,12 +44,12 @@ def register_material_tools(mcp: FastMCP):
             "asset_path": asset_path, "name": name, "value": value, "type": type, "params": params,
         })
 
-    @mcp.tool()
+    @mcp.tool(annotations=READ_ONLY)
     def get_material_params(ctx: Context, asset_path: str) -> Dict[str, Any]:
         """Lista los parámetros scalar/vector/texture/switch de un material o instancia con sus valores."""
         return command("get_material_params", {"asset_path": asset_path})
 
-    @mcp.tool()
+    @mcp.tool(annotations=EDIT)
     def set_actor_material(
         ctx: Context,
         actor: str,

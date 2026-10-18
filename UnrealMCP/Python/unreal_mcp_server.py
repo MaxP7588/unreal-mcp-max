@@ -170,7 +170,7 @@ async def server_lifespan(server: FastMCP) -> AsyncIterator[Dict[str, Any]]:
 
 mcp = FastMCP(
     "UnrealMCP",
-    description="Control del editor de Unreal Engine 5.5 vía Model Context Protocol",
+    instructions="Control del editor de Unreal Engine 5.5 vía Model Context Protocol",
     lifespan=server_lifespan,
 )
 

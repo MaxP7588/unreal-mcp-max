@@ -3,7 +3,20 @@
 import logging
 from typing import Any, Dict, Optional
 
+from mcp.types import ToolAnnotations
+
 logger = logging.getLogger("UnrealMCP")
+
+# Anotaciones MCP de cada herramienta. Los clientes las usan para decidir qué piden confirmar.
+# "Destructiva" = borra, descarta o escribe en disco, aunque el cambio en el editor se pueda deshacer con Ctrl+Z.
+# Solo lee el editor o el proyecto.
+READ_ONLY = ToolAnnotations(readOnlyHint=True, destructiveHint=False, idempotentHint=True, openWorldHint=False)
+# Cambia un valor o el estado del editor; repetirla con los mismos argumentos no cambia nada más.
+EDIT = ToolAnnotations(readOnlyHint=False, destructiveHint=False, idempotentHint=True, openWorldHint=False)
+# Agrega algo nuevo (asset, actor, nodo, archivo); repetirla agrega otro o falla.
+CREATE = ToolAnnotations(readOnlyHint=False, destructiveHint=False, idempotentHint=False, openWorldHint=False)
+# Borra, descarta cambios o guarda en disco (no se deshace con Ctrl+Z).
+DESTRUCTIVE = ToolAnnotations(readOnlyHint=False, destructiveHint=True, idempotentHint=True, openWorldHint=False)
 
 
 def unwrap(response: Optional[Dict[str, Any]]) -> Dict[str, Any]:

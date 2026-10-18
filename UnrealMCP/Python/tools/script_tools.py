@@ -3,12 +3,13 @@
 from typing import Any, Dict
 
 from mcp.server.fastmcp import Context, FastMCP
+from mcp.types import ToolAnnotations
 
-from tools.common import command
+from tools.common import READ_ONLY, command
 
 
 def register_script_tools(mcp: FastMCP):
-    @mcp.tool()
+    @mcp.tool(annotations=ToolAnnotations(readOnlyHint=False, destructiveHint=True, idempotentHint=False, openWorldHint=True))
     def execute_python(ctx: Context, code: str, mode: str = "file", undoable: bool = False) -> Dict[str, Any]:
         """Ejecuta Python dentro del editor (módulo `unreal`) y devuelve lo que imprime.
 
@@ -23,7 +24,7 @@ def register_script_tools(mcp: FastMCP):
         """
         return command("execute_python", {"code": code, "mode": mode, "undoable": undoable})
 
-    @mcp.tool()
+    @mcp.tool(annotations=ToolAnnotations(readOnlyHint=False, destructiveHint=True, idempotentHint=False, openWorldHint=False))
     def console_command(ctx: Context, command_line: str, pie: bool = False) -> Dict[str, Any]:
         """Ejecuta un comando de consola del editor (p. ej. "stat fps", "r.ScreenPercentage 50", "obj list").
 
@@ -33,7 +34,7 @@ def register_script_tools(mcp: FastMCP):
         """
         return command("console_command", {"command": command_line, "pie": pie})
 
-    @mcp.tool()
+    @mcp.tool(annotations=READ_ONLY)
     def list_commands(ctx: Context) -> Dict[str, Any]:
         """Lista todos los comandos que expone el plugin del editor, agrupados por toolset."""
         return command("list_commands")

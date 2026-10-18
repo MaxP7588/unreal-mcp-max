@@ -4,11 +4,11 @@ from typing import Any, Dict, List, Optional
 
 from mcp.server.fastmcp import Context, FastMCP
 
-from tools.common import command
+from tools.common import CREATE, DESTRUCTIVE, EDIT, READ_ONLY, command
 
 
 def register_editor_tools(mcp: FastMCP):
-    @mcp.tool()
+    @mcp.tool(annotations=READ_ONLY)
     def get_actors_in_level(
         ctx: Context,
         class_filter: Optional[str] = None,
@@ -26,12 +26,12 @@ def register_editor_tools(mcp: FastMCP):
         """
         return command("get_actors_in_level", {"class_filter": class_filter, "folder": folder, "limit": limit, "pie": pie})
 
-    @mcp.tool()
+    @mcp.tool(annotations=READ_ONLY)
     def find_actors_by_name(ctx: Context, pattern: str, pie: bool = False) -> Dict[str, Any]:
         """Busca actores cuya etiqueta o nombre interno contenga `pattern`."""
         return command("find_actors_by_name", {"pattern": pattern, "pie": pie})
 
-    @mcp.tool()
+    @mcp.tool(annotations=CREATE)
     def spawn_actor(
         ctx: Context,
         type: str,
@@ -56,7 +56,7 @@ def register_editor_tools(mcp: FastMCP):
             "static_mesh": static_mesh,
         })
 
-    @mcp.tool()
+    @mcp.tool(annotations=CREATE)
     def spawn_blueprint_actor(
         ctx: Context,
         blueprint_name: str,
@@ -71,12 +71,12 @@ def register_editor_tools(mcp: FastMCP):
             "location": location, "rotation": rotation, "scale": scale,
         })
 
-    @mcp.tool()
+    @mcp.tool(annotations=DESTRUCTIVE)
     def delete_actor(ctx: Context, name: str) -> Dict[str, Any]:
         """Borra un actor del nivel por etiqueta o nombre interno (se puede deshacer)."""
         return command("delete_actor", {"name": name})
 
-    @mcp.tool()
+    @mcp.tool(annotations=EDIT)
     def set_actor_transform(
         ctx: Context,
         name: str,
@@ -87,7 +87,7 @@ def register_editor_tools(mcp: FastMCP):
         """Cambia location/rotation/scale de un actor. Los campos omitidos no cambian."""
         return command("set_actor_transform", {"name": name, "location": location, "rotation": rotation, "scale": scale})
 
-    @mcp.tool()
+    @mcp.tool(annotations=READ_ONLY)
     def get_actor_properties(
         ctx: Context, name: str, component: Optional[str] = None, filter: Optional[str] = None, include_all: bool = False
     ) -> Dict[str, Any]:
@@ -96,7 +96,7 @@ def register_editor_tools(mcp: FastMCP):
             "name": name, "component": component, "filter": filter, "include_all": include_all,
         })
 
-    @mcp.tool()
+    @mcp.tool(annotations=EDIT)
     def set_actor_property(
         ctx: Context, name: str, property_name: str, property_value: Any, component: Optional[str] = None
     ) -> Dict[str, Any]:
@@ -108,7 +108,7 @@ def register_editor_tools(mcp: FastMCP):
             "name": name, "property_name": property_name, "property_value": property_value, "component": component,
         })
 
-    @mcp.tool()
+    @mcp.tool(annotations=EDIT)
     def focus_viewport(
         ctx: Context,
         target: Optional[str] = None,
@@ -119,7 +119,7 @@ def register_editor_tools(mcp: FastMCP):
         """Encuadra un actor (target) o mira hacia una posición (location) desde `distance`."""
         return command("focus_viewport", {"target": target, "location": location, "distance": distance, "orientation": orientation})
 
-    @mcp.tool()
+    @mcp.tool(annotations=CREATE)
     def take_screenshot(ctx: Context, filepath: Optional[str] = None) -> Dict[str, Any]:
         """Captura el viewport (el de PIE si está corriendo) a PNG y devuelve la ruta del archivo.
 

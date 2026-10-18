@@ -1,7 +1,7 @@
 {
 	"FileVersion": 3,
-	"Version": 2,
-	"VersionName": "2.0",
+	"Version": 3,
+	"VersionName": "2.1",
 	"FriendlyName": "Unreal MCP Max",
 	"Description": "Conecta Unreal Engine con IAs (Claude, Cursor...) mediante Model Context Protocol. Basado en unreal-mcp de chongdashu (MIT).",
 	"Category": "Editor",

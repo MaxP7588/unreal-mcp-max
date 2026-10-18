@@ -4,11 +4,11 @@ from typing import Any, Dict, List, Optional
 
 from mcp.server.fastmcp import Context, FastMCP
 
-from tools.common import command
+from tools.common import CREATE, EDIT, READ_ONLY, command
 
 
 def register_umg_tools(mcp: FastMCP):
-    @mcp.tool()
+    @mcp.tool(annotations=CREATE)
     def create_umg_widget_blueprint(
         ctx: Context,
         name: str,
@@ -21,12 +21,12 @@ def register_umg_tools(mcp: FastMCP):
             "name": name, "path": path, "parent_class": parent_class, "root_widget": root_widget,
         })
 
-    @mcp.tool()
+    @mcp.tool(annotations=READ_ONLY)
     def get_widget_tree(ctx: Context, blueprint_name: str) -> Dict[str, Any]:
         """Árbol de widgets de un Widget Blueprint: nombres, clases, slots, textos y bindings."""
         return command("get_widget_tree", {"blueprint_name": blueprint_name})
 
-    @mcp.tool()
+    @mcp.tool(annotations=CREATE)
     def add_widget(
         ctx: Context,
         blueprint_name: str,
@@ -56,7 +56,7 @@ def register_umg_tools(mcp: FastMCP):
             "properties": properties, "slot": slot, "is_variable": is_variable,
         })
 
-    @mcp.tool()
+    @mcp.tool(annotations=EDIT)
     def set_widget_property(
         ctx: Context,
         blueprint_name: str,
@@ -73,7 +73,7 @@ def register_umg_tools(mcp: FastMCP):
             "text": text, "position": position, "size": size, "slot": slot,
         })
 
-    @mcp.tool()
+    @mcp.tool(annotations=CREATE)
     def add_text_block_to_widget(
         ctx: Context,
         blueprint_name: str,
@@ -89,7 +89,7 @@ def register_umg_tools(mcp: FastMCP):
             "parent": parent, "position": position, "size": size,
         })
 
-    @mcp.tool()
+    @mcp.tool(annotations=CREATE)
     def add_button_to_widget(
         ctx: Context,
         blueprint_name: str,
@@ -105,21 +105,21 @@ def register_umg_tools(mcp: FastMCP):
             "parent": parent, "position": position, "size": size,
         })
 
-    @mcp.tool()
+    @mcp.tool(annotations=CREATE)
     def bind_widget_event(ctx: Context, blueprint_name: str, widget_name: str, event_name: str) -> Dict[str, Any]:
         """Crea (o encuentra) el nodo de evento de un widget en el Event Graph, p. ej. OnClicked de un Button."""
         return command("bind_widget_event", {
             "blueprint_name": blueprint_name, "widget_name": widget_name, "event_name": event_name,
         })
 
-    @mcp.tool()
+    @mcp.tool(annotations=EDIT)
     def set_text_block_binding(ctx: Context, blueprint_name: str, widget_name: str, binding_name: str) -> Dict[str, Any]:
         """Enlaza el Text de un TextBlock a una variable Text del widget (la crea si no existe)."""
         return command("set_text_block_binding", {
             "blueprint_name": blueprint_name, "widget_name": widget_name, "binding_name": binding_name,
         })
 
-    @mcp.tool()
+    @mcp.tool(annotations=CREATE)
     def add_widget_to_viewport(ctx: Context, blueprint_name: str, z_order: int = 0) -> Dict[str, Any]:
         """Con PIE corriendo, crea el widget y lo muestra en pantalla para probarlo."""
         return command("add_widget_to_viewport", {"blueprint_name": blueprint_name, "z_order": z_order})

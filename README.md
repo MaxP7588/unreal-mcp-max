@@ -42,7 +42,7 @@ hasta que guardes.
 ### Pasos
 
 1. Ve a la página **[Releases](https://github.com/MaxP7588/unreal-mcp-max/releases/latest)** de este repositorio y descarga el zip de tu versión de
-   Unreal (por ejemplo `unreal-mcp-max-v2.0-UE5.5-Win64.zip`).
+   Unreal (por ejemplo `unreal-mcp-max-v2.1-UE5.5-Win64.zip`).
    **No uses el botón verde "Code"**: ese trae el código sin compilar.
 2. Haz clic derecho en el zip → **Extraer todo…** (en Descargas, por ejemplo; **no** dentro de tu proyecto).
 3. **Cierra Unreal** si está abierto.

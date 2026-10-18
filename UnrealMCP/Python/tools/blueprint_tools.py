@@ -8,13 +8,15 @@ import logging
 from typing import Dict, List, Any
 from mcp.server.fastmcp import FastMCP, Context
 
+from tools.common import CREATE, EDIT
+
 # Get logger
 logger = logging.getLogger("UnrealMCP")
 
 def register_blueprint_tools(mcp: FastMCP):
     """Register Blueprint tools with the MCP server."""
     
-    @mcp.tool()
+    @mcp.tool(annotations=CREATE)
     def create_blueprint(
         ctx: Context,
         name: str,
@@ -52,7 +54,7 @@ def register_blueprint_tools(mcp: FastMCP):
             logger.error(error_msg)
             return {"success": False, "message": error_msg}
     
-    @mcp.tool()
+    @mcp.tool(annotations=CREATE)
     def add_component_to_blueprint(
         ctx: Context,
         blueprint_name: str,
@@ -131,7 +133,7 @@ def register_blueprint_tools(mcp: FastMCP):
             logger.error(error_msg)
             return {"success": False, "message": error_msg}
     
-    @mcp.tool()
+    @mcp.tool(annotations=EDIT)
     def set_static_mesh_properties(
         ctx: Context,
         blueprint_name: str,
@@ -178,7 +180,7 @@ def register_blueprint_tools(mcp: FastMCP):
             logger.error(error_msg)
             return {"success": False, "message": error_msg}
     
-    @mcp.tool()
+    @mcp.tool(annotations=EDIT)
     def set_component_property(
         ctx: Context,
         blueprint_name: str,
@@ -217,7 +219,7 @@ def register_blueprint_tools(mcp: FastMCP):
             logger.error(error_msg)
             return {"success": False, "message": error_msg}
     
-    @mcp.tool()
+    @mcp.tool(annotations=EDIT)
     def set_physics_properties(
         ctx: Context,
         blueprint_name: str,
@@ -262,7 +264,7 @@ def register_blueprint_tools(mcp: FastMCP):
             logger.error(error_msg)
             return {"success": False, "message": error_msg}
     
-    @mcp.tool()
+    @mcp.tool(annotations=EDIT)
     def compile_blueprint(
         ctx: Context,
         blueprint_name: str
@@ -295,7 +297,7 @@ def register_blueprint_tools(mcp: FastMCP):
             logger.error(error_msg)
             return {"success": False, "message": error_msg}
 
-    @mcp.tool()
+    @mcp.tool(annotations=EDIT)
     def set_blueprint_property(
         ctx: Context,
         blueprint_name: str,
@@ -429,7 +431,7 @@ def register_blueprint_tools(mcp: FastMCP):
             logger.error(error_msg)
             return {"success": False, "message": error_msg}
 
-    @mcp.tool()
+    @mcp.tool(annotations=EDIT)
     def dump_blueprint_graph(
         ctx: Context,
         blueprint_path: str,
